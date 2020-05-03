@@ -24,13 +24,13 @@ export class TodoAccess {
     return items as TodoItem[]
   }
 
-  async createTodoItem(group: TodoItem): Promise<TodoItem> {
+  async createTodoItem(toDoItem: TodoItem): Promise<TodoItem> {
     await this.docClient.put({
       TableName: this.todoTable,
-      Item: group
+      Item: toDoItem
     }).promise()
 
-    return group
+    return toDoItem
   }
 }
 

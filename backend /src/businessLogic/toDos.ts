@@ -12,7 +12,7 @@ export async function getAllTodoItems(): Promise<TodoItem[]> {
 }
 
 export async function createTodoItem(
-  createGroupRequest: CreateTodoRequest,
+  toDoRequest: CreateTodoRequest,
   jwtToken: string
 ): Promise<TodoItem> {
 
@@ -22,9 +22,10 @@ export async function createTodoItem(
   return await toDoAccess.createTodoItem({
     todoId: itemId,
     userId: userId,
-    name: createGroupRequest.name,
+    name: toDoRequest.name,
     createdAt: new Date().toISOString(),
-    dueDate:createGroupRequest.dueDate,
+    dueDate:toDoRequest.dueDate,
     done: false,
   })
 }
+

@@ -3,8 +3,7 @@ service:
 
 plugins:
   - serverless-webpack
-  - serverless-reqvalidator-plugin
-  - serverless-aws-documentation
+  - serverless-iam-roles-per-function
 
 provider:
   name: aws
@@ -12,32 +11,6 @@ provider:
 
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
-
-  tracing:
-    lambda: true
-    apiGateway: true
-
-  environment:
-    TODO_TABLE: Todo--${self:provider.stage}
-    IMAGES_S3_BUCKET: serverless-udagram-images-${self:provider.stage}
-    AUTH_0_SECRET_ID: Auth0Secret-${self:provider.stage}
-    AUTH_0_SECRET_FIELD: auth0Secret
-    USER_ID_INDEX: ImageIdIndex
-
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:PutItem
-        - dynamodb:GetItem
-        - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
-      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODO_TABLE}
-    - Effect: Allow
-      Action:
-        - s3:PutObject
-        - s3:GetObject
-      Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
-
 
 functions:
 
@@ -51,23 +24,15 @@ functions:
       - http:
           method: get
           path: todos
-          cors: true
 
   # TODO: Configure this function
+  GetTodos:
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
     events:
       - http:
           method: post
           path: todos
-          cors: true
-          authorizer: RS256Auth
-          reqValidatorName: RequestBodyValidator
-          documentation:
-            summary: Create a new todo
-            description: Create a new todo
-            requestModels:
-              'application/json': TodoRequest
 
   # TODO: Configure this function
   UpdateTodo:
@@ -96,29 +61,3 @@ functions:
 resources:
   Resources:
     # TODO: Add any necessary AWS resources
-    TodosTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        AttributeDefinitions:
-          - AttributeName: partitionKey
-            AttributeType: S
-          - AttributeName: sortKey
-            AttributeType: S
-          - AttributeName: indexKey
-            AttributeType: S
-        KeySchema:
-          - AttributeName: partitionKey
-            KeyType: HASH
-          - AttributeName: sortKey
-            KeyType: RANGE
-        BillingMode: PAY_PER_REQUEST
-        TableName: ${self:provider.environment.TODOS_TABLE}
-        LocalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.INDEX_NAME}
-            KeySchema:
-              - AttributeName: partitionKey
-                KeyType: HASH
-              - AttributeName: indexKey
-                KeyType: RANGE
-            Projection:
-              ProjectionType: ALL # What attributes will be copied to an index
