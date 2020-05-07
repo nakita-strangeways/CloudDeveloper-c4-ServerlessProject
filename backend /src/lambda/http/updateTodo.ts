@@ -1,9 +1,7 @@
 import 'source-map-support/register'
 import * as AWS  from 'aws-sdk'
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
-
 import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
-
 
 const docClient = new AWS.DynamoDB.DocumentClient()
 const toDoTable = process.env.TODO_TABLE
