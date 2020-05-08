@@ -31,6 +31,7 @@ provider:
         - dynamodb:Scan
         - dynamodb:PutItem
         - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODO_TABLE}
 
 functions:
@@ -71,12 +72,14 @@ functions:
           authorizer: RS256Auth
 
   # # TODO: Configure this function
-  # DeleteTodo:
-  #   handler: src/lambda/http/deleteTodo.handler
-  #   events:
-  #     - http:
-  #         method: delete
-  #         path: todos/{todoId}
+  DeleteTodo:
+    handler: src/lambda/http/deleteTodo.handler
+    events:
+      - http:
+          method: delete
+          path: todos/{todoId}
+          cors: true
+          authorizer: RS256Auth
 
   # # TODO: Configure this function
   # GenerateUploadUrl:
@@ -104,11 +107,15 @@ resources:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
-          - AttributeName: id
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: todoId
             AttributeType: S
         KeySchema:
-          - AttributeName: id
+          - AttributeName: userId
             KeyType: HASH
+          - AttributeName: todoId
+            KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.TODO_TABLE}
     

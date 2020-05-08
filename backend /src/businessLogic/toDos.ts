@@ -16,8 +16,9 @@ export async function createTodoItem(
   jwtToken: string
 ): Promise<TodoItem> {
 
-  const itemId = uuid.v4()
+  const itemId = uuid.v4()  
   const userId = parseUserId(jwtToken)
+  console.log(userId)
 
   return await toDoAccess.createTodoItem({
     todoId: itemId,
@@ -29,3 +30,7 @@ export async function createTodoItem(
   })
 }
 
+export function deleteToDo(itemId: string, jwtToken: string): Promise<string> {
+  const userId = parseUserId(jwtToken)
+  return toDoAccess.deleteToDo(itemId, userId)
+}
