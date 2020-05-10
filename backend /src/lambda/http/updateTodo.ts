@@ -6,7 +6,7 @@ import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
 import {updateTodoItem} from '../../businessLogic/toDos'
 
 export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  // TODO: Update a TODO item with the provided id using values in the "updatedTodo" object
+  console.log('Processing event: ', event)
   const todoId = event.pathParameters.todoId
   const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
   const authorization = event.headers.Authorization

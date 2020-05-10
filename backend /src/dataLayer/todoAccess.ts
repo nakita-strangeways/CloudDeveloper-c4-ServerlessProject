@@ -10,7 +10,6 @@ const s3 = new AWS.S3({
 })
 
 export class TodoAccess {
-
   constructor(
     private readonly docClient: DocumentClient = createDynamoDBClient(),
     private readonly s3BucketName = process.env.IMAGES_S3_BUCKET,
@@ -24,7 +23,6 @@ export class TodoAccess {
     const result = await this.docClient.scan({
       TableName: this.todoTable
     }).promise()
-
     const items = result.Items
     return items as TodoItem[]
   }
@@ -34,7 +32,6 @@ export class TodoAccess {
       TableName: this.todoTable,
       Item: toDoItem
     }).promise()
-
     return toDoItem
   }
 
@@ -48,7 +45,6 @@ export class TodoAccess {
         }
       })
       .promise()
-
     return result.Item
   }
 
@@ -58,7 +54,6 @@ export class TodoAccess {
       Key: imageId,
       Expires: this.urlExpiration
     })
-
     return url as string
   }
 
