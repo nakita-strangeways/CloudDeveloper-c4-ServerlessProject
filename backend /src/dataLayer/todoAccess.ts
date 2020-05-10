@@ -21,7 +21,6 @@ export class TodoAccess {
 
   async getAllTodoItems(): Promise<TodoItem[]> {
     console.log('Getting all todo items')
-
     const result = await this.docClient.scan({
       TableName: this.todoTable
     }).promise()
@@ -63,16 +62,34 @@ export class TodoAccess {
     return url as string
   }
 
-  async deleteToDo(itemId:string, userId:string): Promise<string> {
+  async updateTodoAttachment(userId: string, todoId: string, attachmentUrl?: string): Promise<void> {    
+    const params = {
+      TableName: this.todoTable,
+      Key: {
+        "userId": userId,
+        "todoId": todoId
+      },
+      UpdateExpression: "set #at = :attachmentUrl",
+      ExpressionAttributeValues: {        
+        ":attachmentUrl": attachmentUrl
+      },
+      ExpressionAttributeNames: {        
+        "#at": "attachmentUrl"
+      },
+      ReturnValues: "NONE"
+    }
+    await this.docClient.update(params).promise()   
+  }
+
+  async deleteToDo(todoId:string, userId:string): Promise<string> {
     console.log("userId", userId)
     const params = {
       TableName: this.todoTable,
       Key: {
         userId: userId,
-        todoId: itemId
+        todoId: todoId
       }
     }
-
     const result = await this.docClient.delete(
       params
     ).promise()
@@ -107,6 +124,5 @@ function createDynamoDBClient() {
       endpoint: 'http://localhost:8000'
     })
   }
-
   return new XAWS.DynamoDB.DocumentClient()
 }

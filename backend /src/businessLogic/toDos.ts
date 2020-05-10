@@ -19,7 +19,6 @@ export async function createTodoItem(
 
   const itemId = uuid.v4()  
   const userId = parseUserId(jwtToken)
-  console.log(userId)
 
   return await toDoAccess.createTodoItem({
     todoId: itemId,
@@ -41,13 +40,21 @@ export function getUploadUrl(todoId: string): Promise<string> {
   return toDoAccess.generateUploadUrl(todoId)
 }
 
+export async function updateTodoAttachment(  
+  todoId: string,
+  jwtToken: string,
+  attachmentUrl?: string
+): Promise <void> {
+  const userId = parseUserId(jwtToken)
+  await toDoAccess.updateTodoAttachment(userId,todoId, attachmentUrl)
+}
 
 export async function updateTodoItem(todoId: string, updatedTodo: UpdateTodoRequest, jwtToken: string, ): Promise<void> {
   const userId = parseUserId(jwtToken)
   return await toDoAccess.updateTodoItem(updatedTodo, userId, todoId)
 }
 
-export function deleteToDo(itemId: string, jwtToken: string): Promise<string> {
+export function deleteToDo(todoId: string, jwtToken: string): Promise<string> {
   const userId = parseUserId(jwtToken)
-  return toDoAccess.deleteToDo(itemId, userId)
+  return toDoAccess.deleteToDo(todoId, userId)
 }
