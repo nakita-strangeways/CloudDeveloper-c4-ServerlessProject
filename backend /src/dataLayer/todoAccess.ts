@@ -14,15 +14,22 @@ export class TodoAccess {
     private readonly docClient: DocumentClient = createDynamoDBClient(),
     private readonly s3BucketName = process.env.IMAGES_S3_BUCKET,
     private readonly todoTable = process.env.TODO_TABLE,
+    private readonly todoIndex = process.env.TODO_ID_INDEX,
     private readonly urlExpiration = process.env.SIGNED_URL_EXPIRATION
     ) {
   }
 
-  async getAllTodoItems(): Promise<TodoItem[]> {
-    console.log('Getting all todo items')
-    const result = await this.docClient.scan({
-      TableName: this.todoTable
-    }).promise()
+  async getAllTodoItems(userId: string): Promise<TodoItem[]> {
+    const result = await this.docClient.query({
+      TableName: this.todoTable,
+      IndexName: this.todoIndex,
+      KeyConditionExpression: 'userId = :userId',
+      ExpressionAttributeValues: {
+        ':userId': userId
+      }
+    })
+    .promise()
+
     const items = result.Items
     return items as TodoItem[]
   }
@@ -77,7 +84,6 @@ export class TodoAccess {
   }
 
   async deleteToDo(todoId:string, userId:string): Promise<string> {
-    console.log("userId", userId)
     const params = {
       TableName: this.todoTable,
       Key: {
@@ -89,7 +95,7 @@ export class TodoAccess {
       params
     ).promise()
     console.log(result)
-    return '' as string
+    return ''
   }
 
   async updateTodoItem(updatedTodo: TodoUpdate, userId: string, todoId: string,): Promise<void> { await this.docClient.update({
@@ -113,7 +119,6 @@ export class TodoAccess {
 
 function createDynamoDBClient() {
   if (process.env.IS_OFFLINE) {
-    console.log('Creating a local DynamoDB instance')
     return new XAWS.DynamoDB.DocumentClient({
       region: 'localhost',
       endpoint: 'http://localhost:8000'
