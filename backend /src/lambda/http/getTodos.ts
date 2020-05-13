@@ -1,15 +1,17 @@
 import 'source-map-support/register'
+import { createLogger } from '../../utils/logger'
 import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import {getAllTodoItems} from '../../businessLogic/toDos'
+import {getUserId} from '../utils'
+
+const logger = createLogger('GetAllTodosFunction')
 
 export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  console.log('Processing event: ', event)
-  const authorization = event.headers.Authorization
-  const split = authorization.split(' ')
-  const jwtToken = split[1]
-  const items = await getAllTodoItems(jwtToken)
+  logger.info('Getting Todos', { event });
+  const userId = getUserId(event)
+  const items = await getAllTodoItems(userId)
 
   return {
     statusCode: 200,

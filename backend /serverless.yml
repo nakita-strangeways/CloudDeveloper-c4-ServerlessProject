@@ -12,7 +12,7 @@ provider:
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
 
-    # enable AWS X-Ray Tracing
+  # enable AWS X-Ray Tracing
   tracing:
     lambda: true
     apiGateway: true

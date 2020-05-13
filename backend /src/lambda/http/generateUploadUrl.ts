@@ -1,18 +1,19 @@
 import 'source-map-support/register'
 import * as middy from 'middy'
+import { createLogger } from '../../utils/logger'
 import { cors } from 'middy/middlewares'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import {toDoItemExists, getUploadUrl, updateTodoAttachment} from '../../businessLogic/toDos'
+import {getUserId} from '../utils'
 
 const s3Bucket = process.env.IMAGES_S3_BUCKET
+const logger = createLogger('GenerateUploadURLFunction')
 
 export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  console.log('Processing event: ', event)
+  logger.info('Generating Upload URL', { event });
   const todoId = event.pathParameters.todoId
-  const authorization = event.headers.Authorization
-  const split = authorization.split(' ')
-  const jwtToken = split[1]
-  const validTodoId = await toDoItemExists(todoId, jwtToken)
+  const userId = getUserId(event)
+  const validTodoId = await toDoItemExists(todoId, userId)
 
   if (!validTodoId) {
     return {
@@ -28,7 +29,7 @@ export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGat
 
   const url = await getUploadUrl(todoId)
   const attachmentUrl = `https://${s3Bucket}.s3.amazonaws.com/${todoId}`
-  await updateTodoAttachment(todoId, jwtToken, attachmentUrl)
+  await updateTodoAttachment(todoId, userId, attachmentUrl)
 
   return {
     statusCode: 201,

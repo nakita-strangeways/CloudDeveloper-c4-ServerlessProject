@@ -3,12 +3,10 @@ import { TodoItem } from '../models/TodoItem'
 import { TodoAccess } from '../dataLayer/todoAccess'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
-import { parseUserId } from '../auth/utils'
 
 const toDoAccess = new TodoAccess()
 
-export async function getAllTodoItems(jwtToken: string): Promise<TodoItem[]> {
-  const userId = parseUserId(jwtToken)
+export async function getAllTodoItems(userId: string): Promise<TodoItem[]> {
   if (!userId) {
     return []
   }
@@ -17,10 +15,9 @@ export async function getAllTodoItems(jwtToken: string): Promise<TodoItem[]> {
 
 export async function createTodoItem(
   toDoRequest: CreateTodoRequest,
-  jwtToken: string
+  userId: string
 ): Promise<TodoItem> {
   const itemId = uuid.v4()  
-  const userId = parseUserId(jwtToken)
   return await toDoAccess.createTodoItem({
     todoId: itemId,
     userId: userId,
@@ -31,8 +28,7 @@ export async function createTodoItem(
   })
 }
 
-export async function toDoItemExists(todoId: string, jwtToken: string) {
-  const userId = parseUserId(jwtToken)
+export async function toDoItemExists(todoId: string, userId: string) {
   const item = await toDoAccess.getTodoItem(todoId, userId)
   return !!item
 }
@@ -43,19 +39,16 @@ export function getUploadUrl(todoId: string): Promise<string> {
 
 export async function updateTodoAttachment(  
   todoId: string,
-  jwtToken: string,
+  userId: string,
   attachmentUrl?: string
 ): Promise <void> {
-  const userId = parseUserId(jwtToken)
   await toDoAccess.updateTodoAttachment(userId,todoId, attachmentUrl)
 }
 
-export async function updateTodoItem(todoId: string, updatedTodo: UpdateTodoRequest, jwtToken: string, ): Promise<void> {
-  const userId = parseUserId(jwtToken)
+export async function updateTodoItem(todoId: string, updatedTodo: UpdateTodoRequest, userId: string, ): Promise<void> {
   return await toDoAccess.updateTodoItem(updatedTodo, userId, todoId)
 }
 
-export function deleteToDo(todoId: string, jwtToken: string): Promise<string> {
-  const userId = parseUserId(jwtToken)
+export function deleteToDo(todoId: string, userId: string): Promise<string> {
   return toDoAccess.deleteToDo(todoId, userId)
 }
