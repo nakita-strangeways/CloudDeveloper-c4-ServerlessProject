@@ -1,5 +1,5 @@
 service:
-  name: serverless-todo-app
+  name: final-cd-todo
 
 plugins:
   - serverless-webpack
@@ -14,17 +14,10 @@ provider:
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
 
-  # enable AWS X-Ray Tracing
-  tracing:
-    lambda: true
-    apiGateway: true
-    iamRoleStatements:
-      - Effect: 'Allow' # xray permissions (required)
-        Action:
-          - 'xray:PutTraceSegments'
-          - 'xray:PutTelemetryRecords'
-        Resource:
-          - '*'
+  # # enable AWS X-Ray Tracing
+  # tracing:
+  #   lambda: true
+  #   apiGateway: true
 
   environment: 
     TODO_TABLE: Todo-table-${self:provider.stage}
@@ -88,12 +81,12 @@ functions:
       Action:
         - dynamodb:Query
       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODO_TABLE}/index/${self:provider.environment.TODO_ID_INDEX}
-    - Effect: 'Allow' # xray permissions (required)
-      Action: 
-        - 'xray:PutTraceSegments'
-        - 'xray:PutTelemetryRecords'
-      Resource:
-        - '*'
+    # - Effect: 'Allow' # xray permissions (required)
+    #   Action: 
+    #     - 'xray:PutTraceSegments'
+    #     - 'xray:PutTelemetryRecords'
+    #   Resource:
+    #     - '*'
 
   # TODO: Configure this function
   CreateTodo:
@@ -115,12 +108,12 @@ functions:
       Action:
         - dynamodb:PutItem
       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODO_TABLE}
-    - Effect: 'Allow' # xray permissions (required)
-      Action: 
-        - 'xray:PutTraceSegments'
-        - 'xray:PutTelemetryRecords'
-      Resource:
-        - '*'
+    # - Effect: 'Allow' # xray permissions (required)
+    #   Action: 
+    #     - 'xray:PutTraceSegments'
+    #     - 'xray:PutTelemetryRecords'
+    #   Resource:
+    #     - '*'
 
   # TODO: Configure this function
   UpdateTodo:
@@ -142,12 +135,12 @@ functions:
       Action:
         - dynamodb:UpdateItem
       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODO_TABLE}
-    - Effect: 'Allow' # xray permissions (required)
-      Action: 
-        - 'xray:PutTraceSegments'
-        - 'xray:PutTelemetryRecords'
-      Resource:
-        - '*'
+    # - Effect: 'Allow' # xray permissions (required)
+    #   Action: 
+    #     - 'xray:PutTraceSegments'
+    #     - 'xray:PutTelemetryRecords'
+    #   Resource:
+    #     - '*'
 
   # # TODO: Configure this function
   DeleteTodo:
@@ -186,12 +179,12 @@ functions:
       Action:
         - s3:*
       Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
-    - Effect: 'Allow' # xray permissions (required)
-      Action: 
-        - 'xray:PutTraceSegments'
-        - 'xray:PutTelemetryRecords'
-      Resource:
-        - '*'
+    # - Effect: 'Allow' # xray permissions (required)
+    #   Action: 
+    #     - 'xray:PutTraceSegments'
+    #     - 'xray:PutTelemetryRecords'
+    #   Resource:
+    #     - '*'
 
 resources:
   Resources:
