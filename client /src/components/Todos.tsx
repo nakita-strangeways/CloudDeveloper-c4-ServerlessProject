@@ -3,6 +3,7 @@ import { History } from 'history'
 import update from 'immutability-helper'
 import * as React from 'react'
 import {
+  Segment,
   Button,
   Checkbox,
   Divider,
@@ -27,17 +28,24 @@ interface TodosState {
   todos: Todo[]
   newTodoName: string
   loadingTodos: boolean
+  searchInput: string
 }
 
 export class Todos extends React.PureComponent<TodosProps, TodosState> {
   state: TodosState = {
     todos: [],
     newTodoName: '',
-    loadingTodos: true
+    loadingTodos: true,
+    searchInput: '',
   }
 
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ newTodoName: event.target.value })
+  }
+
+  handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ searchInput: event.target.value })
+    console.log(this.state.searchInput)
   }
 
   onEditButtonClick = (todoId: string) => {
@@ -55,6 +63,23 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
         todos: [...this.state.todos, newTodo],
         newTodoName: ''
       })
+    } catch {
+      alert('Todo creation failed')
+    }
+  }
+
+  onTodoSearch = async (event: React.ChangeEvent<HTMLButtonElement>) => {
+    try {
+      console.log("attempted to search")
+      // const dueDate = this.calculateDueDate()
+      // const newTodo = await createTodo(this.props.auth.getIdToken(), {
+      //   name: this.state.newTodoName,
+      //   dueDate
+      // })
+      // this.setState({
+      //   todos: [...this.state.todos, newTodo],
+      //   newTodoName: ''
+      // })
     } catch {
       alert('Todo creation failed')
     }
@@ -106,35 +131,49 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
       <div>
         <Header as="h1">TODOs</Header>
 
-        {this.renderCreateTodoInput()}
+        {this.renderCreateTodoInputAndSearch()}
 
         {this.renderTodos()}
       </div>
     )
   }
 
-  renderCreateTodoInput() {
+  renderCreateTodoInputAndSearch() {
     return (
-      <Grid.Row>
-        <Grid.Column width={16}>
-          <Input
-            action={{
-              color: 'teal',
-              labelPosition: 'left',
-              icon: 'add',
-              content: 'New task',
-              onClick: this.onTodoCreate
-            }}
-            fluid
-            actionPosition="left"
-            placeholder="To change the world..."
-            onChange={this.handleNameChange}
-          />
-        </Grid.Column>
-        <Grid.Column width={16}>
-          <Divider />
-        </Grid.Column>
-      </Grid.Row>
+        <Segment>
+          <Grid columns={2} relaxed='very'>
+            <Grid.Column>
+              <Input
+                action={{
+                  color: 'teal',
+                  labelPosition: 'left',
+                  icon: 'add',
+                  content: 'New task',
+                  onClick: this.onTodoCreate
+                }}
+                style={{width: '500px'}}
+                actionPosition="left"
+                placeholder="To change the world..."
+                onChange={this.handleNameChange}
+              />
+            </Grid.Column>
+            <Grid.Column>
+              <Input
+                action={{
+                  color: 'teal',
+                  labelPosition: 'left',
+                  icon: 'search',
+                  content: 'search',
+                  onClick: this.onTodoSearch
+                }}
+                style={{width: '500px'}}
+                placeholder="Todo Item Name"
+                onChange={this.handleSearch}
+              />
+              </Grid.Column>
+          </Grid>
+          <Divider vertical>•</Divider>
+        </Segment>
     )
   }
 

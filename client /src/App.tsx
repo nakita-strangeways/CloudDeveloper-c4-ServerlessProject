@@ -103,7 +103,7 @@ export default class App extends Component<AppProps, AppState> {
             return <EditTodo {...props} auth={this.props.auth} />
           }}
         />
-
+        
         <Route component={NotFound} />
       </Switch>
     )
