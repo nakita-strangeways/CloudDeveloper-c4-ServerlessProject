@@ -1,8 +1,10 @@
 import { DynamoDBStreamEvent, DynamoDBStreamHandler } from 'aws-lambda'
 import 'source-map-support/register'
+import { createLogger } from '../../utils/logger'
 import * as elasticsearch from 'elasticsearch'
 import * as httpAwsEs from 'http-aws-es'
 
+const logger = createLogger('ElasticSearchSyncFunction')
 const esHost = process.env.ES_ENDPOINT
 
 const es = new elasticsearch.Client({
@@ -11,30 +13,31 @@ const es = new elasticsearch.Client({
 })
 
 export const handler: DynamoDBStreamHandler = async (event: DynamoDBStreamEvent) => {
-  console.log('Processing events batch from DynamoDB', JSON.stringify(event))
+  logger.info('Processing events batch from DynamoDB', JSON.stringify(event))
 
   for (const record of event.Records) {
-    console.log('Processing record', JSON.stringify(record))
+    logger.info('Processing record', JSON.stringify(record))
     if (record.eventName !== 'INSERT') {
       continue
     }
 
     const newItem = record.dynamodb.NewImage
 
-    const imageId = newItem.imageId.S
-
+    const todoId = newItem.todoId.S
+    logger.info('newItem', newItem)
     const body = {
-      imageId: newItem.imageId.S,
-      groupId: newItem.groupId.S,
-      imageUrl: newItem.imageUrl.S,
-      title: newItem.title.S,
-      timestamp: newItem.timestamp.S
+      userId: newItem.userId.S,
+      todoId: newItem.todoId.S,
+      createdAt: newItem.createdAt.S,
+      name: newItem.name.S,
+      dueDate: newItem.dueDate.S,
+      done: newItem.done.S,
     }
 
     await es.index({
       index: 'images-index',
       type: 'images',
-      id: imageId,
+      id: todoId,
       body
     })
 
