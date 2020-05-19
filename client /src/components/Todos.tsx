@@ -15,7 +15,7 @@ import {
   Loader
 } from 'semantic-ui-react'
 
-import { createTodo, deleteTodo, getTodos, patchTodo } from '../api/todos-api'
+import { createTodo, deleteTodo, getTodos, patchTodo, searchTodos } from '../api/todos-api'
 import Auth from '../auth/Auth'
 import { Todo } from '../types/Todo'
 
@@ -25,6 +25,7 @@ interface TodosProps {
 }
 
 interface TodosState {
+  originalTodos: Todo[], 
   todos: Todo[]
   newTodoName: string
   loadingTodos: boolean
@@ -33,6 +34,7 @@ interface TodosState {
 
 export class Todos extends React.PureComponent<TodosProps, TodosState> {
   state: TodosState = {
+    originalTodos: [], 
     todos: [],
     newTodoName: '',
     loadingTodos: true,
@@ -45,7 +47,6 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
 
   handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ searchInput: event.target.value })
-    console.log(this.state.searchInput)
   }
 
   onEditButtonClick = (todoId: string) => {
@@ -71,17 +72,17 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
   onTodoSearch = async (event: React.ChangeEvent<HTMLButtonElement>) => {
     try {
       console.log("attempted to search")
-      // const dueDate = this.calculateDueDate()
-      // const newTodo = await createTodo(this.props.auth.getIdToken(), {
-      //   name: this.state.newTodoName,
-      //   dueDate
-      // })
+      this.setState({
+        originalTodos: this.state.todos,
+      })
+      const searchResults = await searchTodos(this.props.auth.getIdToken(), this.state.searchInput
+      )
+      console.log("searchResults", searchResults)
       // this.setState({
-      //   todos: [...this.state.todos, newTodo],
-      //   newTodoName: ''
+      //   todos: this.state.todos.filter(todo => todo.name != todoId)
       // })
     } catch {
-      alert('Todo creation failed')
+      alert('Todo search failed')
     }
   }
 

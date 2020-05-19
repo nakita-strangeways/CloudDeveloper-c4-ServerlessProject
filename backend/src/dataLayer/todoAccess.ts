@@ -3,6 +3,7 @@ import * as AWSXRay from 'aws-xray-sdk'
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 import { TodoItem } from '../models/TodoItem'
 import { TodoUpdate } from '../models/TodoUpdate'
+import { Client } from 'elasticsearch'
 
 const XAWS = AWSXRay.captureAWS(AWS)
 const s3 = new AWS.S3({
@@ -15,7 +16,8 @@ export class TodoAccess {
     private readonly s3BucketName = process.env.IMAGES_S3_BUCKET,
     private readonly todoTable = process.env.TODO_TABLE,
     private readonly todoIndex = process.env.TODO_ID_INDEX,
-    private readonly urlExpiration = process.env.SIGNED_URL_EXPIRATION
+    private readonly urlExpiration = process.env.SIGNED_URL_EXPIRATION,
+    private readonly es = Client
     ) {
   }
 
@@ -114,6 +116,26 @@ export class TodoAccess {
       ':done': updatedTodo.done
     }
   }).promise()
+  }
+
+  async searchToDo(query:string,userId:String):Promise<any> {
+    console.log("im in todo access")
+    const params = {
+      multi_match: {
+        query: query + " " + userId,
+        type: "cross_fields",
+        fields: ["todoTitle","userid"],
+        operator:   "and"
+      }
+    }
+  
+    return await this.es.search({
+      index: 'images-index',
+      type: 'images',
+      body:{
+        "query": params
+      }
+    })
   }
 }
 

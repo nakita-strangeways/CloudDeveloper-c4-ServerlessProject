@@ -26,6 +26,7 @@ provider:
     AUTH_0_SECRET_FIELD: auth0Secret
     IMAGES_S3_BUCKET: todo-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
+    # ES_ENDPOINT: https://search-todo-search-dev-txuqvaa3yld3iah677vos7wcfa.us-east-1.es.amazonaws.com
     
   iamRoleStatements:
     - Effect: Allow
@@ -47,10 +48,13 @@ custom:
     models:
       - name: TodoRequest
         contentType: application/json
-        schema: ${file(/models/create-todo-request.json)}
+        schema: ${file(models/create-todo-request.json)}
       - name: TodoUpdateRequest
         contentType: application/json
-        schema: ${file(/models/todo-update-request.json)}
+        schema: ${file(models/todo-update-request.json)}
+      - name: TodoSearchRequest
+        contentType: application/json
+        schema: ${file(models/todo-search-request.json)}
 
 functions:
   Auth:
@@ -195,6 +199,22 @@ functions:
           type: dynamodb
           arn: !GetAtt TodoDynamoDBTable.StreamArn
 
+  SearchTodo:
+    environment:
+      ES_ENDPOINT: !GetAtt TodoSearch.DomainEndpoint
+    handler: src/lambda/http/searchTodo.handler
+    events:
+      - http:
+          method: post
+          path: search/
+          cors: true
+          authorizer: RS256Auth
+          documentation:
+            summary: search todo
+            description: search todo
+            requestModels:
+              'application/json': TodoSearchRequest
+        
 
 resources:
   Resources:
@@ -325,7 +345,6 @@ resources:
           Iops: 0
           VolumeSize: 10
           VolumeType: 'gp2'
-
         AccessPolicies:
           Version: '2012-10-17'
           Statement:

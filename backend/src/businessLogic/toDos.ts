@@ -52,3 +52,8 @@ export async function updateTodoItem(todoId: string, updatedTodo: UpdateTodoRequ
 export function deleteToDo(todoId: string, userId: string): Promise<string> {
   return toDoAccess.deleteToDo(todoId, userId)
 }
+
+export async function searchToDo(query: string, userId: string): Promise<void> {
+  console.log("im in todo")
+  return toDoAccess.searchToDo(query, userId)
+}
